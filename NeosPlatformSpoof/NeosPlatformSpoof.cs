@@ -2,6 +2,7 @@
 using HarmonyLib;
 using NeosModLoader;
 using System;
+using System.Reflection;
 
 namespace NeosPlatformSpoof
 {
@@ -12,9 +13,21 @@ namespace NeosPlatformSpoof
         public override string Version => "1.0.0";
         public override string Link => "https://github.com/zkxs/NeosPlatformSpoof";
 
+        private static readonly Platform TARGET_PLATFORM = Platform.Android;
+
+        private static FieldInfo _userInitializingEnabled;
+
         public override void OnEngineInit()
         {
             Harmony harmony = new Harmony("net.michaelripley.NeosPlatformSpoof");
+
+            _userInitializingEnabled = AccessTools.DeclaredField(typeof(User), "InitializingEnabled");
+            if (_userInitializingEnabled == null)
+            {
+                Error("Could not reflect field User.InitializingEnabled");
+                return;
+            }
+
             harmony.PatchAll();
             Msg("Hooks installed successfully!");
         }
@@ -29,8 +42,8 @@ namespace NeosPlatformSpoof
                     Platform oldPlatform = Platform.Other;
                     if (controlMessage.Data.TryExtract("Platform", ref oldPlatform))
                     {
-                        controlMessage.Data.AddOrUpdate("Platform", Platform.Android);
-                        Msg($"spoofed join Platform from {oldPlatform} to {Platform.Android}");
+                        controlMessage.Data.AddOrUpdate("Platform", TARGET_PLATFORM);
+                        Msg($"spoofed join Platform from {oldPlatform} to {TARGET_PLATFORM}");
                     }
                 }
             }
@@ -41,8 +54,12 @@ namespace NeosPlatformSpoof
         {
             private static void Postfix(ref User __result)
             {
-                Msg($"spoofed host platform from {__result.Platform} to {Platform.Android}");
-                __result.Platform = Platform.Android;
+                Platform oldPlatform = __result.Platform;
+                bool oldInitializingEnabled = (bool) _userInitializingEnabled.GetValue(__result);
+                _userInitializingEnabled.SetValue(__result, true);
+                __result.Platform = TARGET_PLATFORM;
+                _userInitializingEnabled.SetValue(__result, oldInitializingEnabled);
+                Msg($"spoofed host platform from {oldPlatform} to {__result.Platform}");
             }
         }
     }
