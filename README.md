@@ -1,6 +1,11 @@
 # NeosPlatformSpoof
 
-A [NeosModLoader](https://github.com/zkxs/NeosModLoader) mod for [Neos VR](https://neos.com/) that spoofs your platform.
+A [NeosModLoader](https://github.com/zkxs/NeosModLoader) mod for [Neos VR](https://neos.com/) that spoofs your platform when joining new sessions. Requires NeosModLoader 1.8.0 or newer for the configuration system.
+
+Use it to:
+- Show your Linux pride, even if you're on proton
+- Hide your Linux pride
+- Bamboozle people into thinking you're on Android
 
 ## Installation
 1. Install [NeosModLoader](https://github.com/zkxs/NeosModLoader).
